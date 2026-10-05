@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>セミナー・ローンチ 進行の型</title>
+<style>
+:root{
+  --bg:#FFFFFF; --panel:#F7F8FA;
+  --ink:#1A1A1F; --sub:#5A5E66;
+  --line:#E5E7EB; --line2:#888F9A;
+  --c1:#3F6485; --c2:#2F6E69; --c3:#4C7048;
+  --c4:#6B7238; --c5:#5F5484; --c6:#7E4F65;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; padding:26px 12px 34px;
+  background:var(--bg); color:var(--ink);
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium",YuGothic,"Noto Sans JP","Helvetica Neue",Arial,sans-serif;
+  font-size:14px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1240px;margin:0 auto}
+
+/* ---- ヘッダ / フッタ ---- */
+header{text-align:center;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+/* 狭い画面でも「セミナー・ローンチ／進行の型」の語中で折らず、空白位置だけで折り返す */
+h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.03em;line-height:1.35;word-break:keep-all}
+footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--sub);text-align:center}
+
+/* ---- キャンバス ---- */
+.canvas{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 10px}
+
+/* =========================================================
+   ロジックツリー（左の根 → 右へ 主枝 → 子 → 孫）
+   既定（〜1023px）= 縦インデントツリー
+   1024px 以上      = 横方向ツリー
+   ========================================================= */
+.tree{position:relative}
+.bl{list-style:none;margin:0;padding:0}
+.bl>li{position:relative;padding:7px 0 7px var(--tk)}
+
+/* 根 */
+.rootbox{display:flex;position:relative}
+.root{
+  background:#fff;border:1px solid var(--line2);border-radius:14px;
+  padding:13px 20px;
+  font-size:18px;font-weight:700;letter-spacing:.08em;text-align:center;
+}
+
+/* 枝色（主枝ごとに幹・ティック・バッジへ継承） */
+.b1{--cl:var(--c1)} .b2{--cl:var(--c2)} .b3{--cl:var(--c3)}
+.b4{--cl:var(--c4)} .b5{--cl:var(--c5)} .b6{--cl:var(--c6)}
+
+/* 第1階層（主枝6本）: 根からの幹。線色(--ln)は根のスタブと同じ中立グレーで統一 */
+.lv1{position:relative;margin:20px 0 0 6px;--tk:12px;--tick:30px;--ln:var(--line2)}
+.lv1::before{content:"";position:absolute;left:0;top:-20px;width:1px;height:20px;background:var(--ln)}
+.lv1>li{padding:10px 0 10px var(--tk)}
+
+/* 第2・第3階層（子・孫）: 縦インデント。線色は枝色 */
+.sb{position:relative;margin:12px 0 0 8px;--tk:12px;--ln:var(--cl)}
+.sb::before{content:"";position:absolute;left:0;top:-12px;width:1px;height:12px;background:var(--ln)}
+.lv2{--tick:26px}
+.lv3{--tick:23px}
+
+/* 幹（縦）＋ティック（横）。末端は角丸で親子を閉じる */
+.bl>li::after{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--ln)}
+.bl>li::before{content:"";position:absolute;left:0;top:var(--tick);width:var(--tk);height:1px;background:var(--ln)}
+.bl>li:last-child::after{display:none}
+.bl>li:last-child::before{
+  top:0;height:var(--tick);background:none;
+  border-left:1px solid var(--ln);border-bottom:1px solid var(--ln);
+  border-bottom-left-radius:10px;
+}
+
+/* ノード */
+.nd1{
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--cl);
+  border-radius:10px;padding:9px 12px;
+}
+.hd{display:flex;align-items:center;gap:8px}
+.n{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:6px;
+  background:var(--cl);color:#fff;font-size:12px;font-weight:700;line-height:1;
+}
+.t{margin:0;font-size:15px;font-weight:700;line-height:1.35}
+.dl{display:block;margin-top:3px;font-size:12px;font-weight:600;color:var(--sub);letter-spacing:.06em}
+
+.nd2{
+  background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;
+  font-size:14px;font-weight:700;line-height:1.35;word-break:auto-phrase;
+}
+/* 孫ノード: 狭い画面では枠と余白を最小化して可読幅を確保する */
+.nd3{
+  background:#fff;border:none;border-left:2px solid var(--cl);
+  border-radius:0 7px 7px 0;padding:6px 8px;
+  font-size:13px;line-height:1.55;color:var(--sub);
+}
+/* 区切り（／・→＋）の直後だけで折り返す。語中で切らせず、行頭が区切りで始まるのも防ぐ */
+.nd3,.chain{word-break:keep-all}
+.chain span{display:inline-block}
+
+/* ---- タブレット: 縦ツリーのまま1行を長くしすぎない ---- */
+@media (min-width:640px) and (max-width:1023px){
+  .tree{max-width:620px;margin:0 auto}
+}
+
+/* ---- PC: 左の根から右へ分岐する横方向ロジックツリー ---- */
+@media (min-width:1024px){
+  body{padding:34px 24px 40px}
+  header{padding-bottom:20px;margin-bottom:26px}
+  h1{font-size:30px}
+  .canvas{padding:34px 26px}
+
+  .tree{display:flex;flex-direction:row;align-items:center;width:fit-content;margin:0 auto}
+
+  .rootbox{display:block;flex:0 0 112px}
+  .root{padding:20px 10px;font-size:19px}
+
+  /* 各階層の横スタブ（親ノード右辺 → 子リストの幹） */
+  .lv1{margin:0 0 0 26px;--tk:26px}
+  .lv1::before{top:50%;left:-26px;width:26px;height:1px}
+  .lv2{margin:0 0 0 24px;--tk:24px}
+  .lv2::before{top:50%;left:-24px;width:24px;height:1px}
+  .lv3{margin:0 0 0 20px;--tk:20px}
+  .lv3::before{top:50%;left:-20px;width:20px;height:1px}
+
+  /* 親の縦中央に合流する角丸エルボー */
+  .bl>li::after{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:1px;height:auto;
+    background:var(--ln);border:none;border-radius:0;
+  }
+  .bl>li::before{
+    content:"";position:absolute;left:0;top:50%;bottom:auto;width:var(--tk);height:1px;
+    background:var(--ln);border:none;border-radius:0;
+  }
+  .bl>li:first-child::after{display:none}
+  .bl>li:first-child::before{
+    top:50%;bottom:0;height:auto;background:none;
+    border-top:1px solid var(--ln);border-left:1px solid var(--ln);
+    border-radius:9px 0 0 0;
+  }
+  .bl>li:last-child::after{display:none}
+  .bl>li:last-child::before{
+    top:0;bottom:auto;height:50%;background:none;
+    border-bottom:1px solid var(--ln);border-left:1px solid var(--ln);
+    border-radius:0 0 0 9px;
+  }
+  .bl>li:only-child::after{display:none}
+  .bl>li:only-child::before{
+    top:50%;bottom:auto;height:1px;background:var(--ln);
+    border:none;border-radius:0;
+  }
+
+  /* 行の組み: ノードは子リストの縦中央に置く */
+  .lv1>li{display:flex;align-items:center;padding:12px 0 12px var(--tk)}
+  .lv2>li{display:flex;align-items:center;padding:5px 0 5px var(--tk)}
+  .lv3>li{display:flex;align-items:center;padding:0 0 0 var(--tk)}
+  .sb{flex:0 0 auto}
+  .nd1{flex:0 0 158px}
+  .nd2{flex:0 0 190px}
+  .nd3{flex:0 0 300px;border:1px solid var(--line);border-left:2px solid var(--cl);border-radius:7px;padding:7px 10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>セミナー・ローンチ 進行の型</h1>
+</header>
+
+<div class="canvas">
+  <div class="tree">
+
+    <div class="rootbox"><div class="root">ローンチ</div></div>
+
+    <ul class="bl lv1">
+
+      <li class="b1">
+        <div class="nd1">
+          <div class="hd"><span class="n">1</span><h2 class="t">準備</h2></div>
+          <span class="dl">〜D-15</span>
+        </div>
+        <ul class="bl sb lv2">
+          <li>
+            <div class="nd2">企画設計</div>
+            <ul class="bl sb lv3"><li><div class="nd3">目標金額・<wbr>商品・<wbr>日程（連休回避）</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">導線構築</div>
+            <ul class="bl sb lv3"><li><div class="nd3">公式LINE／<wbr>特典動画LP／<wbr>オプチャ／<wbr>コメント自動応答／<wbr>面談ステップ配信</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">コンテンツ制作</div>
+            <ul class="bl sb lv3"><li><div class="nd3">特典動画・<wbr>面談特典・<wbr>台本一式</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">体制</div>
+            <ul class="bl sb lv3"><li><div class="nd3">クローザー／<wbr>テスト運用→<wbr>拡大</div></li></ul>
+          </li>
+        </ul>
+      </li>
+
+      <li class="b2">
+        <div class="nd1">
+          <div class="hd"><span class="n">2</span><h2 class="t">プリローンチ</h2></div>
+          <span class="dl">D-14〜D-1</span>
+        </div>
+        <ul class="bl sb lv2">
+          <li>
+            <div class="nd2">ストーリーズ毎日教育</div>
+            <ul class="bl sb lv3"><li><div class="nd3 chain"><span>実績→</span><wbr><span>選び方→</span><wbr><span>壁の破壊→</span><wbr><span>予告→</span><wbr><span>質問募集→</span><wbr><span>実績者→</span><wbr><span>向き不向き→</span><wbr><span>目次→</span><wbr><span>前日予告</span></div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">リール2本</div>
+            <ul class="bl sb lv3"><li><div class="nd3">教育＋<wbr>解禁予告</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">コメント→オプチャ誘導</div>
+          </li>
+          <li>
+            <div class="nd2">解禁予告で醸成</div>
+          </li>
+        </ul>
+      </li>
+
+      <li class="b3">
+        <div class="nd1">
+          <div class="hd"><span class="n">3</span><h2 class="t">公開日</h2></div>
+          <span class="dl">D-Day</span>
+        </div>
+        <ul class="bl sb lv2">
+          <li>
+            <div class="nd2">12時 特典動画公開</div>
+          </li>
+          <li>
+            <div class="nd2">当日2回投稿</div>
+            <ul class="bl sb lv3"><li><div class="nd3">公開＋<wbr>夜の後追い</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">LINEステップ配信開始</div>
+            <ul class="bl sb lv3"><li><div class="nd3">直後＋<wbr>30分後</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">コメントトリガー</div>
+            <ul class="bl sb lv3"><li><div class="nd3">DMでLP送付</div></li></ul>
+          </li>
+        </ul>
+      </li>
+
+      <li class="b4">
+        <div class="nd1">
+          <div class="hd"><span class="n">4</span><h2 class="t">後追い</h2></div>
+          <span class="dl">D+1〜D+6</span>
+        </div>
+        <ul class="bl sb lv2">
+          <li>
+            <div class="nd2">ストーリーズ毎日 限定性訴求</div>
+            <ul class="bl sb lv3"><li><div class="nd3">実績報告→<wbr>想い→<wbr>終了予告→<wbr>最終日</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">LINE朝・夜配信</div>
+            <ul class="bl sb lv3"><li><div class="nd3">感想・<wbr>締切・<wbr>参加者の声・<wbr>最終案内</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">申込締切</div>
+          </li>
+        </ul>
+      </li>
+
+      <li class="b5">
+        <div class="nd1">
+          <div class="hd"><span class="n">5</span><h2 class="t">面談〜成約</h2></div>
+        </div>
+        <ul class="bl sb lv2">
+          <li>
+            <div class="nd2">リマインド4回</div>
+            <ul class="bl sb lv3"><li><div class="nd3">前日・<wbr>当日朝・<wbr>2時間前・<wbr>30分前</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">面談前動画</div>
+          </li>
+          <li>
+            <div class="nd2">面談1時間</div>
+            <ul class="bl sb lv3"><li><div class="nd3">専用ロードマップ</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">成約後動画</div>
+          </li>
+          <li>
+            <div class="nd2">成約後LINE 7ステップ</div>
+          </li>
+          <li>
+            <div class="nd2">プラン別専用グループ</div>
+          </li>
+        </ul>
+      </li>
+
+      <li class="b6">
+        <div class="nd1">
+          <div class="hd"><span class="n">6</span><h2 class="t">役割・KPI</h2></div>
+        </div>
+        <ul class="bl sb lv2">
+          <li>
+            <div class="nd2">演者</div>
+            <ul class="bl sb lv3"><li><div class="nd3">発信・<wbr>撮影・<wbr>リスト獲得</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">制作運用</div>
+            <ul class="bl sb lv3"><li><div class="nd3">企画・<wbr>導線・<wbr>スケジュール・<wbr>動画撮影</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">マーケ統括</div>
+            <ul class="bl sb lv3"><li><div class="nd3">リスト・<wbr>オプチャ最大化</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">セールス統括</div>
+            <ul class="bl sb lv3"><li><div class="nd3">面談数最大化</div></li></ul>
+          </li>
+          <li>
+            <div class="nd2">KPI目安</div>
+            <ul class="bl sb lv3"><li><div class="nd3">リスト→<wbr>オプチャ7割／<wbr>面談LINE 3割／<wbr>面談参加7割／<wbr>成約率30%（今回の計画値）</div></li></ul>
+          </li>
+        </ul>
+      </li>
+
+    </ul>
+
+  </div>
+</div>
+
+<footer>実際のセミナー・ローンチ運用の実例から型化・2026-09-30</footer>
+
+</div>
+</body>
+</html>
